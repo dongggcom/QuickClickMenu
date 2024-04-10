@@ -1,0 +1,71 @@
+:global {
+    .quick-click-menu-layout {
+        --quick-click-menu-font-size: 12px;
+        --quick-click-menu-max-height-space: 64px;
+        --quick-click-menu-z-index: 1050;
+        --quick-click-menu-item-height: 32px;
+        --quick-click-menu-item-width: calc(100% - 8px);
+        --quick-click-menu-padding-inline: 16px;
+    
+        position: absolute;
+        z-index: var(--quick-click-menu-z-index);
+    
+        &.show {
+            display: block;
+        }
+    
+        &.hide {
+            display: none;
+        }
+    
+        ul.quick-click-menu {
+            overflow-x: hidden;
+            overflow-y: auto;
+            margin: 0;
+            padding: 0;
+            line-height: 0;
+            list-style: none;
+            outline: none;
+
+            font-size: var(--quick-click-menu-font-size);
+            min-width: 160px;
+            max-height: calc(100vh - var(--quick-click-menu-max-height-space));
+        
+            cursor: initial;
+            transition: background 0.3s ease-in-out, padding 0.3s ease-in-out;
+            border-radius: 4px;
+            background-color: #fff;
+            box-shadow: rgba(0, 0, 0, 0.08) 0px 6px 16px 0;
+    
+            li {
+                line-height: var(--quick-click-menu-item-height);
+                height: var(--quick-click-menu-item-height);
+                width: var(--quick-click-menu-item-width);
+                padding: 0 var(--quick-click-menu-padding-inline);
+                margin: 4px;
+
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #e6f4ff;
+                }
+
+                &.disabled {
+                    // 禁用样式
+                    cursor: not-allowed;
+                    background: none !important;
+                    opacity: 0.2;
+                }
+            }
+        }
+
+        .quick-click-menu-receiver {
+            opacity: 0;
+            height: 0px;
+            width: 0px;
+        }
+    }
+}
