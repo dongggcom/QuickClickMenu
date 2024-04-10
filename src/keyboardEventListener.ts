@@ -1,4 +1,4 @@
-import type {ComposeKey, Key} from './type';
+import type {Key} from './type';
 
 enum EventStatus {
     Active,
@@ -30,10 +30,10 @@ class KeyboardEventListener {
         this.eventStatus = EventStatus.Inactive;
     }
 
-    bindKey(key: ComposeKey<Key>, callback: (e: KeyboardEvent) => void) {
+    bindKey(key: Key, callback: (e: KeyboardEvent) => void) {
         const eventHandler = (e: KeyboardEvent) => {
             if (this.eventStatus === EventStatus.Active) {
-                if (key === e.code.toLowerCase()) {
+                if (key.toLowerCase() === e.code.toLowerCase()) {
                     e.stopPropagation();
                     e.preventDefault();
                     callback(e);
@@ -44,10 +44,11 @@ class KeyboardEventListener {
 
         // this.receiver.onkeydown = eventHandler;
         this.receiver.onkeyup = eventHandler;
-        this.registerKeyCaller(key, callback);
+        this.registerKeyCaller(key.toLowerCase(), callback);
     }
 
     dispatch(key: string, e: KeyboardEvent) {
+        // TODO: 组合键
         if (this.eventListenerMap.has(key)) {
             const result = this.eventListenerMap.get(key)?.(e);
 
@@ -56,7 +57,7 @@ class KeyboardEventListener {
         }
     }
 
-    private registerKeyCaller(key: ComposeKey<Key>, callback: (e: KeyboardEvent) => void) {
+    private registerKeyCaller(key: string, callback: (e: KeyboardEvent) => void) {
         this.eventListenerMap.set(key, callback);
     }
 

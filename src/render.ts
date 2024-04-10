@@ -1,4 +1,3 @@
-import KeyMap from './dict/keymap';
 import KeyboardEventListener from './keyboardEventListener';
 import type {ComposeKey, Key, Options} from './type';
 
@@ -6,18 +5,18 @@ class Render {
     readonly layout: HTMLDivElement;
     private readonly eventListener: KeyboardEventListener;
     private readonly container: HTMLElement;
+    private readonly items: Options['items'];
 
     constructor(items: Options['items'], container?: HTMLElement) {
+        this.items = items;
         this.layout = document.querySelector('.quick-click-menu-layout') ?? this.createLayout();
         this.container = container ?? document.body;
 
         // 事件监听
         this.eventListener = new KeyboardEventListener(this.layout);
 
-        // 创建菜单
-        this.layout.querySelector('.quick-click-menu')?.remove();
-        this.layout.appendChild(this.createMenu(items));
-
+        // 渲染菜单
+        this.renderMenu();
     }
 
     show() {
@@ -26,6 +25,7 @@ class Render {
 
         // 如果有菜单，则添加到 body 中
         if (this.layout.parentNode) {
+            this.renderMenu();
             return;
         }
 
@@ -43,6 +43,12 @@ class Render {
 
     dispatch(key: string, e: KeyboardEvent) {
         return this.eventListener.dispatch(key, e);
+    }
+
+    // 渲染菜单
+    private renderMenu() {
+        this.layout.querySelector('.quick-click-menu')?.remove();
+        this.layout.appendChild(this.createMenu(this.items));
     }
 
     // 创建布局
@@ -88,12 +94,23 @@ class Render {
 
                 li.appendChild(child);
             }
+            else {
+                li.innerText = item.label;
+            }
 
             // 快捷键
-            if (item.key && KeyMap[item.key as ComposeKey<Key>]) {
-                this.eventListener.bindKey(item.key as ComposeKey<Key>, () => {
-                    !item.disabled?.() && item.click();
-                });
+            if (item.key) {
+                if (Array.isArray(item.key)) {
+                    item.key.forEach(k => {
+                        this.eventListener.bindKey(k as ComposeKey<Key>, () => {
+                            !item.disabled?.() && item.click();
+                        });
+                    });
+                } else {
+                    this.eventListener.bindKey(item.key as ComposeKey<Key>, () => {
+                        !item.disabled?.() && item.click();
+                    });
+                }
             }
 
             // 禁用
@@ -102,8 +119,12 @@ class Render {
             }
 
             // 添加事件
-            !item.disabled?.() && (li.onclick = e => {
+            (li.onclick = e => {
                 e.stopPropagation();
+                if (item.disabled?.()) {
+                    return;
+                }
+
                 item.click();
 
                 // 隐藏菜单
