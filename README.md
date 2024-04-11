@@ -32,7 +32,7 @@ const options = {
                 const node = minder.getSelectedNode();
                 return !node;
             },
-            key: 'alt',
+            key: 'alt+1',
             render: '<span>Edit Node</span> <span style="color: grey">Space</span>',
         },
     ],

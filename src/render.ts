@@ -41,8 +41,8 @@ class Render {
         this.eventListener.eventListenerActive();
     }
 
-    dispatch(key: string, e: KeyboardEvent) {
-        return this.eventListener.dispatch(key, e);
+    dispatch(e: KeyboardEvent) {
+        return this.eventListener.dispatch(e);
     }
 
     // 渲染菜单

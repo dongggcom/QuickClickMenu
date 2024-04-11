@@ -34,7 +34,7 @@ class QuicClickMenu {
     }
 
     dispatch(e: KeyboardEvent) {
-        return this.render.dispatch(e.code.toLowerCase(), e);
+        return this.render.dispatch(e);
     }
 
     private bindKeyboardEvent() {

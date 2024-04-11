@@ -1,4 +1,4 @@
-import type {Key} from './type';
+import type {ComposeKey, Key} from './type';
 
 enum EventStatus {
     Active,
@@ -30,15 +30,14 @@ class KeyboardEventListener {
         this.eventStatus = EventStatus.Inactive;
     }
 
-    bindKey(key: Key, callback: (e: KeyboardEvent) => void) {
+    bindKey(key: ComposeKey<Key>, callback: (e: KeyboardEvent) => void) {
         const eventHandler = (e: KeyboardEvent) => {
             if (this.eventStatus === EventStatus.Active) {
-                if (key.toLowerCase() === e.code.toLowerCase()) {
+                if (key.toLowerCase() === this.getKeyBoardEventCustomKey(e)) {
                     e.stopPropagation();
                     e.preventDefault();
                     callback(e);
                 }
-                // TODO: 组合键
             }
         };
 
@@ -47,14 +46,52 @@ class KeyboardEventListener {
         this.registerKeyCaller(key.toLowerCase(), callback);
     }
 
-    dispatch(key: string, e: KeyboardEvent) {
-        // TODO: 组合键
+    dispatch(e: KeyboardEvent) {
+        const key = this.getKeyBoardEventCustomKey(e);
+
+        // 组合健
+        if (e.isComposing) {
+            return true;
+        }
+
         if (this.eventListenerMap.has(key)) {
+            e.stopPropagation();
+            e.preventDefault();
+
             const result = this.eventListenerMap.get(key)?.(e);
 
             // 一定有一个返回值，确保告知 dispatch 执行成功
             return result ?? true;
         }
+    }
+
+    // 获取
+    private getKeyBoardEventCustomKey(e: KeyboardEvent) {
+        if (!e.composed) {
+            return e.code.toLowerCase();
+        }
+        // 组合按钮
+        let customKey = '';
+        for (const key in e) {
+            if (['ctrlKey', 'metaKey', 'altKey', 'shiftKey'].includes(key) && e[key as keyof KeyboardEvent]) {
+                customKey = key.substring(0, key.length - 3) + '+';
+                break;
+            }
+        }
+
+        // 数字前缀 Digit
+        if (e.code.startsWith('Digit')) {
+            customKey += e.code[5];
+        }
+        // 字母前缀 Key
+        else if (e.code.startsWith('Key')) {
+            customKey += e.code[3];
+        }
+        else {
+            customKey += e.code;
+        }
+
+        return customKey.toLowerCase();
     }
 
     private registerKeyCaller(key: string, callback: (e: KeyboardEvent) => void) {
