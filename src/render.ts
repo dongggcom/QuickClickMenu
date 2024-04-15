@@ -29,8 +29,12 @@ class Render {
             return;
         }
 
-        this.container.appendChild(this.layout);
-    }
+        const oldLayoutDom = document.querySelector('.quick-click-menu-layout');
+        if (oldLayoutDom) {
+            this.container.replaceChild(this.layout, oldLayoutDom);
+        } else {
+            this.container.appendChild(this.layout);
+        }    }
 
     hide() {
         // 隐藏菜单
