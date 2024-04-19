@@ -1,0 +1,27 @@
+{
+  "name": "quick-click-menu",
+  "version": "1.0.0",
+  "description": "a menu component, bind keyborad event.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "sh scripts/build.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dongggcom/QuickClickMenu.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "click",
+    "menu"
+  ],
+  "author": "dongggcom",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dongggcom/QuickClickMenu/issues"
+  },
+  "homepage": "https://github.com/dongggcom/QuickClickMenu#readme"
+}
