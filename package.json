@@ -1,6 +1,6 @@
 {
   "name": "quick-click-menu",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "a menu component, bind keyborad event.",
   "main": "dist/index.js",
   "scripts": {

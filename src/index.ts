@@ -41,7 +41,7 @@ class QuicClickMenu {
         this.container.onmousedown = e => {
             e.preventDefault();
 
-            this.render.registerEventListenr();
+            this.render.registerEventListener();
         };
     }
 }

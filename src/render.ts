@@ -23,25 +23,26 @@ class Render {
         // 显示菜单
         this.layout.classList.remove('hide');
 
-        // 如果有菜单，则添加到 body 中
-        if (this.layout.parentNode) {
-            this.renderMenu();
-            return;
-        }
-
+        // refresh layout
         const oldLayoutDom = document.querySelector('.quick-click-menu-layout');
         if (oldLayoutDom) {
             this.container.replaceChild(this.layout, oldLayoutDom);
         } else {
             this.container.appendChild(this.layout);
-        }    }
+        }
+        
+        // 如果有菜单，则添加到 body 中
+        if (this.layout.parentNode) {
+            this.renderMenu();
+        }
+    }
 
     hide() {
         // 隐藏菜单
         this.layout.classList.add('hide');
     }
 
-    registerEventListenr() {
+    registerEventListener() {
         this.eventListener.eventListenerActive();
     }
 
