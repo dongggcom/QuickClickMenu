@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "sh scripts/build.sh",
+    "start": "sh scripts/demo.sh && compose-html start --root example",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

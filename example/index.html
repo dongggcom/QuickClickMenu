@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickClickMenu Demo</title>
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #eee;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        import QuickClickMenu from './index.js';
+
+        function createRenderElement(label, key) {
+            const div = document.createElement('div');
+            const span = document.createElement('span');
+            span.style.color = '#ccc';
+            span.style.fontSize = '12px';
+            span.innerText = Array.isArray(key) ? key.join(' | ') : key;
+
+            div.innerText = label + ' ';
+            div.appendChild(span);
+            return div;
+        }
+
+        let itemClickCount = 3;
+        const qcm = new QuickClickMenu({
+            items: [
+                {
+                    label: 'item1',
+                    click: () => {
+                        alert('item1 clicked');
+                        itemClickCount--;
+                    },
+                    key: 'tab',
+                    disabled: () => {
+                        return itemClickCount < 1;
+                    },
+                    render: createRenderElement('Item1', 'tab'),
+                    children: [
+                        {
+                            label: 'child1',
+                            click: () => {
+                                alert('child1 clicked');
+                            },
+                            key: 'ctrl+1'
+                        },
+                    ]
+                },
+                {
+                    label: 'item2',
+                    click: () => {
+                        alert('item2 clicked');
+                    },
+                    key: 'alt+1'
+                },
+
+            ]
+        }, document.body);
+
+        qcm.located({ x: 10, y: 10 })
+        // FIXME: 绑定快捷键失败
+        // TODO: 仅用来绑定快捷键的样例
+    </script>
+</body>
+
+</html>

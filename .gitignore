@@ -28,3 +28,6 @@ gitcafe.yml
 es
 es6
 esm
+
+example/index.js
+example/style.css
