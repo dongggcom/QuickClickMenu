@@ -1,8 +1,8 @@
 {
   "name": "quick-click-menu",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "description": "a menu component, bind keyborad event.",
-  "main": "dist/index.js",
+  "main": "dist/index.esm.js",
   "scripts": {
     "build": "sh scripts/build.sh",
     "start": "sh scripts/demo.sh && compose-html start --root example",

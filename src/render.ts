@@ -1,15 +1,19 @@
 import KeyboardEventListener from './keyboardEventListener';
-import type {ComposeKey, Key, Options} from './type';
+import type {ComposeKey, Key, OptionItem, Options} from './type';
 
 class Render {
+    children?: Render;
+    parent?: Render;
     readonly layout: HTMLDivElement;
+    private readonly className: string;
     private readonly eventListener: KeyboardEventListener;
     private readonly container: HTMLElement;
     private readonly items: Options['items'];
 
-    constructor(items: Options['items'], container?: HTMLElement) {
+    constructor(items: Options['items'], container?: HTMLElement, className?: string) {
         this.items = items;
-        this.layout = document.querySelector('.quick-click-menu-layout') ?? this.createLayout();
+        this.className = className ?? 'quick-click-menu';
+        this.layout = document.querySelector(`.${this.className}-layout`) ?? this.createLayout();
         this.container = container ?? document.body;
 
         // 事件监听
@@ -19,27 +23,29 @@ class Render {
         this.renderMenu();
     }
 
+    // 显示菜单
     show() {
-        // 显示菜单
         this.layout.classList.remove('hide');
 
-        // refresh layout
-        const oldLayoutDom = document.querySelector('.quick-click-menu-layout');
+        const oldLayoutDom = document.querySelector(`.${this.className}-layout`);
         if (oldLayoutDom) {
             this.container.replaceChild(this.layout, oldLayoutDom);
         } else {
             this.container.appendChild(this.layout);
         }
-        
+
         // 如果有菜单，则添加到 body 中
         if (this.layout.parentNode) {
             this.renderMenu();
         }
     }
 
+    // 隐藏菜单
     hide() {
-        // 隐藏菜单
         this.layout.classList.add('hide');
+        this.children?.layout.classList.add('hide');
+        this.parent?.layout.classList.add('hide');
+
     }
 
     registerEventListener() {
@@ -52,7 +58,7 @@ class Render {
 
     // 渲染菜单
     private renderMenu() {
-        this.layout.querySelector('.quick-click-menu')?.remove();
+        this.layout.querySelector(`.${this.className}`)?.remove();
         this.layout.appendChild(this.createMenu(this.items));
     }
 
@@ -60,86 +66,120 @@ class Render {
     private createLayout() {
         const layout = document.createElement('div');
 
-        layout.className = 'quick-click-menu-layout hide';
+        layout.className = `${this.className}-layout hide`;
 
         layout.onmousedown = e => {
             e.stopPropagation();
             e.preventDefault();
         };
 
+        layout.addEventListener('mousewheel', e => {
+            e.stopPropagation();
+        }, false);
+
         return layout;
     }
+    
 
     // 创建菜单
     private createMenu(items: Options['items']) {
         const menu = document.createElement('ul');
-        menu.className = 'quick-click-menu';
+        menu.className = this.className;
 
         // 创建菜单项
         items.forEach((item, index) => {
-            const li = document.createElement('li');
-            li.title = item.label;
-            li.dataset['index'] = `${index}`;
-
-            // 渲染
-            if (typeof item.render === 'string') {
-                li.innerHTML = item.render;
-            }
-            else if (item.render) {
-                let child: Text | HTMLElement = document.createTextNode(item.label);
-                if (item.render instanceof HTMLElement) {
-                    child = item.render;
-                }
-                else if (typeof item.render === 'function') {
-                    const renderContent = item.render();
-                    if (renderContent instanceof HTMLElement) {
-                        child = renderContent;
-                    }
-                }
-
-                li.appendChild(child);
-            }
-            else {
-                li.innerText = item.label;
-            }
-
-            // 快捷键
-            if (item.key) {
-                if (Array.isArray(item.key)) {
-                    item.key.forEach(k => {
-                        this.eventListener.bindKey(k as ComposeKey<Key>, () => {
-                            !item.disabled?.() && item.click();
-                        });
-                    });
-                } else {
-                    this.eventListener.bindKey(item.key as ComposeKey<Key>, () => {
-                        !item.disabled?.() && item.click();
-                    });
-                }
-            }
-
-            // 禁用
-            if (item.disabled?.()) {
-                li.classList.add('disabled');
-            }
-
-            // 添加事件
-            (li.onclick = e => {
-                e.stopPropagation();
-                if (item.disabled?.()) {
-                    return;
-                }
-
-                item.click();
-
-                // 隐藏菜单
-                this.hide();
-            });
-
+            const li = this.createItem(item, index);
             menu.appendChild(li);
         });
 
         return menu;
+    }
+
+    // 创建菜单项
+    private createItem(item: OptionItem, index?: number | string) {
+        const li = document.createElement('li');
+        li.title = item.label;
+        li.dataset['index'] = `${index}`;
+
+        // 渲染
+        if (typeof item.render === 'string') {
+            li.innerText = item.render;
+        }
+        else if (item.render) {
+            let child: Text | HTMLElement = document.createTextNode(item.label);
+            if (item.render instanceof HTMLElement) {
+                child = item.render;
+            }
+            else if (typeof item.render === 'function') {
+                const renderContent = item.render();
+                if (renderContent instanceof HTMLElement) {
+                    child = renderContent;
+                }
+            }
+
+            li.appendChild(child);
+        }
+        else {
+            li.innerText = item.label;
+        }
+
+        // 子节点
+        if (item.children && item.children.length > 0) {
+            const arrow = document.createElement('i');
+            arrow.className = `${this.className}-arrow`;
+
+            li.appendChild(arrow);
+
+            const children = new Render(item.children, this.container, 'quick-click-sub-menu');
+
+            // 父节点消失，通过绑定，使子节点消失
+            this.children = children;
+            // 子节点消失，通过绑定，使父节点消失
+            this.children.parent = this;
+
+            // hover 显示
+            li.onmouseenter = () => {
+                children.layout.style.left = `${this.layout.offsetLeft + this.layout.offsetWidth + 5}px`;
+                children.layout.style.top = `${this.layout.offsetTop + li.offsetTop}px`;
+
+                children.show();
+            };
+        }
+
+        // 快捷键
+        if (item.key && item.click) {
+            if (Array.isArray(item.key)) {
+                item.key.forEach(k => {
+                    this.eventListener.bindKey(k as ComposeKey<Key>, () => {
+                        !item.disabled?.() && item.click?.();
+                    });
+                });
+            } else {
+                this.eventListener.bindKey(item.key as ComposeKey<Key>, () => {
+                    !item.disabled?.() && item.click?.();
+                });
+            }
+        }
+
+        // 禁用
+        if (item.disabled?.()) {
+            li.classList.add('disabled');
+        }
+
+        // 添加事件
+        item.click && (li.onclick = e => {
+            e.stopPropagation();
+            if (item.disabled?.()) {
+                return;
+            }
+
+            item.click?.();
+
+            // 隐藏菜单
+            this.hide();
+        });
+
+        return li;
     }
 
 }

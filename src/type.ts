@@ -4,15 +4,17 @@ import KeyMap from './dict/keymap';
 export type Key = keyof typeof KeyMap;
 export type ComposeKey<T extends Key> = T | `${T}+${T}`;
 
+export interface OptionItem {
+    label: string;
+    click?: () => void;
+    disabled?: () => boolean | boolean;
+    key?: string | string[];
+    // TODO: react / vue / html / string / function
+    render?: (() => HTMLElement) | HTMLElement | string;
+    children?: OptionItem[];
+}
+
 export interface Options {
     // 菜单项
-    items: Array<{
-        label: string;
-        click: () => void;
-        disabled?: () => boolean | boolean;
-        key?: string;
-        // TODO: react / vue / html / string / function
-        render?: (() => HTMLElement) | HTMLElement | string;
-    }>;
-    // TODO: maxHeight
+    items: OptionItem[];
 }
