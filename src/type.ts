@@ -17,4 +17,6 @@ export interface OptionItem {
 export interface Options {
     // 菜单项
     items: OptionItem[];
+    // 是否允许事件冒泡
+    stopPropagation?: boolean;
 }

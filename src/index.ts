@@ -8,7 +8,11 @@ class QuicClickMenu {
     private readonly container: HTMLElement;
 
     constructor(options: Options, container: HTMLElement | string) {
-        this.options = options;
+        const defaultOptions: Options = {
+            stopPropagation: true,
+            items: [],
+        };
+        this.options = {...defaultOptions, ...options};
 
         const realContainer = container instanceof HTMLElement
             ? container
@@ -39,7 +43,7 @@ class QuicClickMenu {
 
     private bindKeyboardEvent() {
         this.container.onmousedown = e => {
-            e.preventDefault();
+            this.options.stopPropagation && e.preventDefault();
 
             this.render.registerEventListener();
         };
