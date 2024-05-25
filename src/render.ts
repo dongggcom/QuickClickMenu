@@ -143,6 +143,14 @@ class Render {
                 children.layout.style.top = `${this.layout.offsetTop + li.offsetTop}px`;
 
                 children.show();
+
+                // 未 append body，因此更新子节点
+                this.children = children;
+            };
+
+            // 子节点，隐藏
+            children.layout.onmouseleave = () => {
+                children.layout.classList.add('hide');
             };
         }
 
