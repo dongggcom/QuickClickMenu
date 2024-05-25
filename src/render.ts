@@ -13,7 +13,7 @@ class Render {
     constructor(items: Options['items'], container?: HTMLElement, className?: string) {
         this.items = items;
         this.className = className ?? 'quick-click-menu';
-        this.layout = document.querySelector(`.${this.className}-layout`) ?? this.createLayout();
+        this.layout = container?.querySelector(`.${this.className}-layout`) ?? this.createLayout();
         this.container = container ?? document.body;
 
         // 事件监听
@@ -27,7 +27,7 @@ class Render {
     show() {
         this.layout.classList.remove('hide');
 
-        const oldLayoutDom = document.querySelector(`.${this.className}-layout`);
+        const oldLayoutDom = this.container.querySelector(`.${this.className}-layout`);
         if (oldLayoutDom) {
             this.container.replaceChild(this.layout, oldLayoutDom);
         } else {
