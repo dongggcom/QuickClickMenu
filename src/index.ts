@@ -29,12 +29,13 @@ class QuicClickMenu {
         this.bindKeyboardEvent();
     }
 
-    located({x, y}: {x?: number, y?: number}) {
-        this.render.layout.style.left = `${x ?? this.container?.clientWidth / 2}px`;
-        this.render.layout.style.top = `${y ?? this.container?.clientHeight / 2}px`;
-
+    located({x = 0, y = 0}: {x?: number, y?: number}) {
         // 显示菜单
         this.render.show();
+        // clientSize 需要 render 后
+        const {offsetX, offsetY} = this.render.boundaryHint({x: x ?? 0, y: y ?? 0});
+
+        this.render.located({x: x + offsetX, y: y + offsetY});
     }
 
     dispatch(e: KeyboardEvent) {

@@ -45,7 +45,12 @@ class Render {
         this.layout.classList.add('hide');
         this.children?.layout.classList.add('hide');
         this.parent?.layout.classList.add('hide');
+    }
 
+    // 基于 container 的坐标
+    located({x, y}: {x: number, y: number}) {
+        this.layout.style.left = `${x}px`;
+        this.layout.style.top = `${y}px`;
     }
 
     registerEventListener() {
@@ -54,6 +59,24 @@ class Render {
 
     dispatch(e: KeyboardEvent) {
         return this.eventListener.dispatch(e);
+    }
+
+    // 边界探测
+    boundaryHint({x, y}: {x: number, y: number}, layout: Element = this.layout) {
+        let offsetX = 0;
+        let offsetY = 0;
+
+        const rect = this.container.getBoundingClientRect();
+
+        if (window.innerWidth - x - rect.left < layout.clientWidth + 10) {
+            offsetX = -layout.clientWidth;
+        }
+
+        if (window.innerHeight - y - rect.top < layout.clientHeight + 10) {
+            offsetY = -layout.clientHeight;
+        }
+
+        return {offsetX, offsetY};
     }
 
     // 渲染菜单
@@ -139,10 +162,18 @@ class Render {
 
             // hover 显示
             li.onmouseenter = () => {
-                children.layout.style.left = `${this.layout.offsetLeft + this.layout.offsetWidth + 5}px`;
-                children.layout.style.top = `${this.layout.offsetTop + li.offsetTop}px`;
-
                 children.show();
+
+                const x = this.layout.offsetLeft + this.layout.offsetWidth + 5;
+                const y = this.layout.offsetTop + li.offsetTop;
+
+                const {offsetX, offsetY} = this.boundaryHint({x, y}, children.layout);
+
+                const realX = offsetX ? this.layout.offsetLeft + offsetX - 5 : x;
+                // 与底部齐平
+                const realY = offsetY ? this.layout.offsetTop + offsetY + this.layout.offsetHeight : y;
+
+                children.located({x: realX, y: realY});
 
                 // 未 append body，因此更新子节点
                 this.children = children;
